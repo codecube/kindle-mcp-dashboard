@@ -1,0 +1,11 @@
+{
+  "model": "EY21",
+  "family": "Kindle Paperwhite 1 (5th generation, 2012)",
+  "variant": "Wi-Fi",
+  "serial_prefix": "B024",
+  "firmware": "5.6.1.1",
+  "build": "2689890035",
+  "resolution": [758, 1024],
+  "grayscale_levels": 16,
+  "architecture": "armv7 soft-float"
+}
