@@ -42,11 +42,21 @@ python -m venv .venv
 .venv/bin/kindle-dashboard serve --host 0.0.0.0 --port 8787 --refresh 60
 ```
 
-Find the computer's LAN address with `ip -br address`. On the Kindle, connect to
-the same Wi-Fi network and open this plain-HTTP URL in the Experimental Browser:
+Port 8787 is the direct dashboard-server port. Find the computer's LAN address
+with `ip -br address`. Most clients can open this plain-HTTP URL in the
+Experimental Browser:
 
 ```text
 http://COMPUTER_LAN_IP:8787/kindle
+```
+
+For the first-generation EY21 on firmware 5.6.1.1, the Experimental Browser
+and the jailbroken device client were tested successfully through standard HTTP
+port 80 instead. Configure a reverse proxy from port 80 to the dashboard's
+8787 port, then use:
+
+```text
+http://COMPUTER_LAN_IP/kindle
 ```
 
 Store connectivity and Amazon registration are not required. The browser only
@@ -139,8 +149,10 @@ publishing their full serial.
 
 Once the EY21 is already jailbroken with shell access, copy
 `kindle/refresh.sh` to it, make it executable, and change `DASHBOARD_URL` to the
-server's LAN address. The script disables the screensaver, downloads the
-current PNG, and draws it using the Kindle's built-in `eips` command.
+server's LAN address. For this firmware, use the port-80 `/screen.png` URL from
+the supplied `dashboard.conf`; the direct `:8787` endpoint was not reliable on
+the device. The script disables the screensaver, downloads the current PNG, and
+draws it using the Kindle's built-in `eips` command.
 
 The original Paperwhite is also supported by the legacy `kindle` build of
 KOReader, which can be useful as a launcher on an already-jailbroken device.
