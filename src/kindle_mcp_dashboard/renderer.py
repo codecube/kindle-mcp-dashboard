@@ -46,7 +46,8 @@ def _box(region: dict[str, Any], width: int, height: int) -> tuple[int, int, int
 
 def _draw_region(draw: ImageDraw.ImageDraw, region: dict[str, Any], values: dict[str, Any], width: int, height: int) -> None:
     x, y, w, h = _box(region, width, height)
-    pad = max(6, round(min(width, height) * 0.012))
+    # Give labels and content comfortable breathing room on the e-ink panel.
+    pad = max(10, round(min(width, height) * 0.018))
     if region.get("border", True):
         draw.rounded_rectangle((x, y, x + w, y + h), radius=7, outline=30, width=2)
     if region.get("invert"):
@@ -58,7 +59,9 @@ def _draw_region(draw: ImageDraw.ImageDraw, region: dict[str, Any], values: dict
     cursor_y = y + pad
     if label:
         font = _font(max(14, round(height * 0.018)), bold=True)
-        draw.text((x + pad, cursor_y), label, font=font, fill=muted)
+        # Region titles should remain high-contrast and readable after the
+        # Kindle's grayscale quantization; muted gray is too faint here.
+        draw.text((x + pad, cursor_y), label, font=font, fill=fg)
         cursor_y += _line_height(font) + 5
     icon = region.get("icon")
     icon_space = 0
