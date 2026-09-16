@@ -5,7 +5,7 @@ import textwrap
 from pathlib import Path
 from typing import Any
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from .sources import resolve, snapshot
 
@@ -26,7 +26,10 @@ def render_dashboard(data: dict[str, Any], values: dict[str, Any] | None = None)
     screen = next(item for item in data["screens"] if item["id"] == data["active_screen"])
     live = values or snapshot()
     for region in screen["regions"]:
-        _draw_region(draw, region, live, width, height)
+        if region["kind"] == "image":
+            _draw_image(image, region, width, height)
+        else:
+            _draw_region(draw, region, live, width, height)
     # Quantize to the EY21 panel's 16 grayscale levels.
     return image.quantize(colors=16).convert("L")
 
@@ -106,6 +109,30 @@ def _draw_region(draw: ImageDraw.ImageDraw, region: dict[str, Any], values: dict
             else:
                 draw.ellipse(marker_box, outline=fg, width=2)
             draw.text((x + pad + 24, row_y), text, font=item_font, fill=fg)
+
+
+def _draw_image(image: Image.Image, region: dict[str, Any], width: int, height: int) -> None:
+    """Draw a local image asset, scaled to fit its normalized region."""
+    path = region.get("image") or region.get("path")
+    if not isinstance(path, str) or not path:
+        return
+    try:
+        source = Image.open(Path(path).expanduser()).convert("L")
+    except (OSError, ValueError):
+        return
+    if region.get("trim"):
+        bbox = ImageOps.invert(source).getbbox()
+        if bbox:
+            source = source.crop(bbox)
+    x, y, w, h = _box(region, width, height)
+    pad = max(6, round(min(width, height) * 0.012))
+    target_w, target_h = max(1, w - pad * 2), max(1, h - pad * 2)
+    fitted = ImageOps.contain(source, (target_w, target_h))
+    if region.get("invert"):
+        fitted = ImageOps.invert(fitted)
+    paste_x = x + (w - fitted.width) // 2
+    paste_y = y + (h - fitted.height) // 2
+    image.paste(fitted, (paste_x, paste_y))
 
 
 def _draw_wrapped(draw: ImageDraw.ImageDraw, value: str, x: int, y: int, width: int, bottom: int,

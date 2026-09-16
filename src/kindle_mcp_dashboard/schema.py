@@ -3,7 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-KINDS = {"text", "metric", "status", "progress", "list"}
+KINDS = {"text", "metric", "status", "progress", "list", "image"}
 
 
 class DashboardError(ValueError):

@@ -22,7 +22,7 @@ is rendered.
 
 - Named screens with an active-screen switch
 - Regions positioned on a normalized 1000×1000 canvas
-- `text`, `metric`, `status`, `progress`, and `list` widgets
+- `text`, `metric`, `status`, `progress`, `list`, and local `image` widgets
 - Built-in monochrome icons: `weather`/`cloud`, `cpu`, `memory`, `disk`, `agent`
 - Atomic JSON persistence shared by the MCP and HTTP processes
 - Live sources: `system.time`, `system.date`, `system.hostname`,
@@ -109,6 +109,9 @@ The MCP tools are:
 For layout changes, use `upsert_screen`. Coordinates are normalized: `{x: 0,
 y: 0, w: 500, h: 500}` is the top-left quarter regardless of device pixels.
 Content-only updates should use `update_region` or atomic `push_updates`.
+Image regions use an absolute local file path in their `image` field; the image
+must be available on the machine running the renderer. Set `trim: true` to
+remove white margins before fitting a logo or other scanned asset.
 
 Example update arguments:
 

@@ -21,6 +21,26 @@ def test_render_has_expected_panel_shape():
     assert render_png(DEFAULT_DASHBOARD).startswith(b"\x89PNG")
 
 
+def test_render_supports_local_image_region(tmp_path):
+    asset = tmp_path / "asset.png"
+    from PIL import Image
+    Image.new("L", (20, 20), 0).save(asset)
+    data = deepcopy(DEFAULT_DASHBOARD)
+    data["screens"][0]["regions"] = [{
+        "id": "logo",
+        "kind": "image",
+        "x": 100,
+        "y": 100,
+        "w": 800,
+        "h": 800,
+        "image": str(asset),
+        "trim": True,
+    }]
+    data = validate_dashboard(data)
+    image = render_dashboard(data)
+    assert image.getpixel((379, 512)) == 0
+
+
 def test_store_updates_region_atomically(tmp_path):
     store = DashboardStore(tmp_path / "state.json")
     store.write(DEFAULT_DASHBOARD)
